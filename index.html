@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mesa de Post-its Pro</title>
+  <title>Mesa de Post-its Pro + Cloud + Lixeira</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
   
@@ -21,33 +21,23 @@
     }
     .bg-cork {
       background-color: #b58150;
-      background-image: 
-        radial-gradient(rgba(0,0,0,0.08) 15%, transparent 16%), 
-        radial-gradient(rgba(255,255,255,0.08) 15%, transparent 16%);
-      background-size: 14px 14px;
-      background-position: 0 0, 7px 7px;
+      background-image: radial-gradient(rgba(0,0,0,0.08) 15%, transparent 16%), radial-gradient(rgba(255,255,255,0.08) 15%, transparent 16%);
+      background-size: 14px 14px; background-position: 0 0, 7px 7px;
     }
     .bg-dark {
-      background: #111827;
-      background-image: radial-gradient(circle at center, #1f2937 0%, #111827 100%);
+      background: #111827; background-image: radial-gradient(circle at center, #1f2937 0%, #111827 100%);
     }
     .bg-slate {
       background-color: #264635;
-      background-image: 
-        radial-gradient(circle, rgba(255,255,255,0.03) 10%, transparent 10%),
-        radial-gradient(circle, rgba(255,255,255,0.02) 10%, transparent 10%);
-      background-size: 20px 20px;
-      background-position: 0 0, 10px 10px;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.03) 10%, transparent 10%), radial-gradient(circle, rgba(255,255,255,0.02) 10%, transparent 10%);
+      background-size: 20px 20px; background-position: 0 0, 10px 10px;
     }
 
     #toolbar {
       position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      padding: 12px 24px; border-radius: 100px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
-      border: 1px solid rgba(255,255,255,0.3);
-      display: flex; gap: 20px; align-items: center; z-index: 99999;
+      background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      padding: 12px 24px; border-radius: 100px; box-shadow: 0 10px 40px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
+      border: 1px solid rgba(255,255,255,0.3); display: flex; gap: 20px; align-items: center; z-index: 99999;
     }
     .toolbar-group { display: flex; align-items: center; gap: 8px; border-right: 1px solid rgba(0,0,0,0.1); padding-right: 20px; }
     .toolbar-group:last-child { border: none; padding-right: 0; }
@@ -60,6 +50,8 @@
     .btn:hover { background: rgba(0,0,0,0.05); }
     .btn-add { background: #1e293b; color: white; box-shadow: 0 4px 12px rgba(30, 41, 59, 0.3); }
     .btn-add:hover { background: #0f172a; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(30, 41, 59, 0.4); }
+    .btn-sync { background: #10b981; color: white; display: none; }
+    .btn-sync:hover { background: #059669; }
 
     select {
       padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.1);
@@ -68,44 +60,42 @@
     }
     select:hover { background: rgba(255,255,255,0.9); }
 
-    /* CORREÇÃO DO BUG DE ROTAÇÃO: Usando variável CSS --rot */
     @keyframes popIn {
       0% { transform: scale(0.5) translateY(-50px) rotate(var(--rot)); opacity: 0; }
       100% { transform: scale(1) translateY(0) rotate(var(--rot)); opacity: 1; }
     }
 
-    /* Sombras Múltiplas Realistas (Sem o ::before falso) */
     .postit {
       position: absolute; width: 240px; height: 240px; padding: 20px 20px 15px;
       cursor: grab; display: flex; flex-direction: column;
       transform: rotate(var(--rot));
       animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-      border-bottom-right-radius: 12px 4px; /* Suavizado */
-      box-shadow: 
-        0 2px 4px rgba(0,0,0,0.08), 
-        0 6px 12px rgba(0,0,0,0.1), 
-        0 12px 24px rgba(0,0,0,0.12),
-        inset 0 0 30px rgba(0,0,0,0.03); /* Iluminação interna sutil */
+      border-bottom-right-radius: 12px 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08), 0 6px 12px rgba(0,0,0,0.1), 0 12px 24px rgba(0,0,0,0.12), inset 0 0 30px rgba(0,0,0,0.03);
       transition: box-shadow 0.2s, transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+      min-width: 180px; min-height: 180px;
     }
 
     .tape {
       position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-2deg);
-      width: 90px; height: 25px;
-      background: rgba(255, 255, 255, 0.45);
-      backdrop-filter: blur(1px);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.3);
-      border-left: 2px solid rgba(255,255,255,0.2);
-      border-right: 2px solid rgba(255,255,255,0.2);
+      width: 90px; height: 25px; background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.3);
+      border-left: 2px solid rgba(255,255,255,0.2); border-right: 2px solid rgba(255,255,255,0.2);
       z-index: 10; cursor: move;
     }
 
     .postit.dragging {
       cursor: grabbing;
-      transform: scale(1.05) rotate(0deg) !important;
-      box-shadow: 
-        0 10px 20px rgba(0,0,0,0.15), 
-        0 25px 40px rgba(0,0,0,0.2); /* Sombra afasta do papel quando levantado */
+      /* Agora a rotação acompanha enquanto você arrasta */
+      transform: scale(1.05) rotate(var(--rot)) !important;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2), 0 25px 40px rgba(0,0,0,0.15);
+    }
+
+    /* Animação de ser amassado para o lixo */
+    .postit.crumpling {
+      transition: all 0.4s cubic-bezier(0.5, 0, 0.8, 0.2) !important;
+      transform: scale(0.05) rotate(calc(var(--rot) + 360deg)) !important;
+      opacity: 0; pointer-events: none;
     }
 
     .yellow { background: linear-gradient(135deg, #fff7a1, #ffea6b); }
@@ -125,10 +115,9 @@
     }
     .tool-btn:hover { background: rgba(255, 255, 255, 0.9); transform: scale(1.1); }
     .tool-btn.active { background: #1e293b; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-    .btn-close { color: #ef4444; }
 
     .postit-text {
-      width: 100%; height: 100%; border: none; background: transparent; resize: none; outline: none;
+      width: 100%; flex: 1; border: none; background: transparent; resize: none; outline: none;
       font-family: 'Caveat', cursive; font-size: 26px; font-weight: 700;
       color: rgba(0,0,0,0.8); line-height: 1.2; user-select: text;
     }
@@ -140,16 +129,53 @@
     }
     .mode-draw .postit-canvas { pointer-events: auto; cursor: crosshair; }
     .mode-draw .postit-text { pointer-events: none; }
+
+    /* Controles de Canto (Redimensionar e Girar) */
+    .resize-handle, .rotate-handle {
+      position: absolute; bottom: 4px; width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: 0.2s; z-index: 10;
+    }
+    .postit:hover .resize-handle, .postit:hover .rotate-handle { opacity: 0.5; }
+    .resize-handle:hover, .rotate-handle:hover { opacity: 1 !important; transform: scale(1.1); }
+    
+    .resize-handle { right: 4px; cursor: nwse-resize; align-items: flex-end; justify-content: flex-end; padding: 4px; }
+    .resize-handle::after { content: ''; width: 8px; height: 8px; border-right: 2px solid rgba(0,0,0,0.5); border-bottom: 2px solid rgba(0,0,0,0.5); }
+    
+    .rotate-handle { left: 4px; cursor: alias; color: rgba(0,0,0,0.6); }
+
+    /* LIXEIRA FLUTUANTE */
+    #trash-can {
+      position: fixed; right: 30px; bottom: 30px; width: 64px; height: 64px;
+      background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px);
+      border: 2px dashed rgba(0,0,0,0.2); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 28px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.2s; z-index: 99998;
+    }
+    #trash-can.hovering { background: #fee2e2; border-color: #ef4444; transform: scale(1.2); box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3); }
+
+    /* Autenticação */
+    #corner-login {
+      position: fixed; bottom: 15px; left: 15px; z-index: 99999;
+      background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.3); padding: 6px 12px; border-radius: 8px;
+      font-size: 12px; font-weight: 700; cursor: pointer; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5); transition: 0.2s;
+    }
+    #corner-login:hover { background: rgba(255,255,255,0.4); }
+    #auth-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .auth-box { background: #fff; padding: 24px; border-radius: 16px; width: 300px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center; }
+    .auth-box h3 { margin-bottom: 16px; color: #1e293b; }
+    .auth-box input { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-family: inherit; }
+    .auth-box button { width: 100%; margin-bottom: 8px; justify-content: center; }
+    .error-msg { color: #ef4444; font-size: 12px; margin-bottom: 10px; min-height: 15px; }
   </style>
 </head>
 <body>
 
+  <!-- Menu Central -->
   <div id="toolbar">
     <div class="toolbar-group">
-      <button class="btn btn-add" onclick="createPostit()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        Criar Post-it
-      </button>
+      <button class="btn btn-add" onclick="createPostit()">➕ Criar Post-it</button>
       <select id="colorSelect">
         <option value="yellow">🟡 Amarelo</option>
         <option value="pink">🌸 Rosa</option>
@@ -167,34 +193,104 @@
         <option value="bg-dark">🌌 Minimalista Dark</option>
       </select>
     </div>
+    <button class="btn btn-sync" id="btnSync" onclick="saveToCloud()">☁️ Salvar na Nuvem</button>
   </div>
 
+  <!-- A Mesa -->
   <div id="board" class="bg-wood"></div>
 
-  <script>
-    const board = document.getElementById('board');
-    let topZIndex = 100;
+  <!-- Lixeira Interativa -->
+  <div id="trash-can">🗑️</div>
 
-    function changeBackground(bgClass) {
-      board.className = bgClass;
+  <!-- Botão e Modal de Login (Canto esquerdo para não cobrir a lixeira) -->
+  <button id="corner-login" onclick="toggleAuthModal()">☁️ Login Cloud</button>
+  
+  <div id="auth-modal" onclick="if(event.target===this) toggleAuthModal()">
+    <div class="auth-box">
+      <h3>Acesso à Nuvem</h3>
+      <input type="email" id="authEmail" placeholder="E-mail">
+      <input type="password" id="authPass" placeholder="Senha">
+      <div id="authError" class="error-msg"></div>
+      <button class="btn btn-add" onclick="doLogin()">Entrar</button>
+      <button class="btn" style="background:#f1f5f9; border:1px solid #cbd5e1" onclick="doRegister()">Criar Conta (0800)</button>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Configuração do Firebase
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_PROJETO.firebaseapp.com",
+      projectId: "SEU_PROJETO",
+      storageBucket: "SEU_PROJETO.appspot.com",
+      messagingSenderId: "SEU_ID",
+      appId: "SEU_APP_ID"
+    };
+    
+    let auth, db, currentUser = null;
+    if(firebaseConfig.apiKey !== "SUA_API_KEY") {
+      firebase.initializeApp(firebaseConfig);
+      auth = firebase.auth();
+      db = firebase.firestore();
+
+      auth.onAuthStateChanged(user => {
+        currentUser = user;
+        const btnCorner = document.getElementById('corner-login');
+        const btnSync = document.getElementById('btnSync');
+        if(user) {
+          btnCorner.textContent = "👋 Sair (" + user.email.split('@')[0] + ")";
+          btnCorner.onclick = () => auth.signOut();
+          btnSync.style.display = "flex";
+          toggleAuthModal(false);
+          loadFromCloud();
+        } else {
+          btnCorner.textContent = "☁️ Login Cloud";
+          btnCorner.onclick = () => toggleAuthModal(true);
+          btnSync.style.display = "none";
+          document.getElementById('board').innerHTML = '';
+        }
+      });
     }
 
-    function createPostit(text = "", posX = null, posY = null) {
+    function toggleAuthModal(show = true) {
+      document.getElementById('auth-modal').style.display = show ? 'flex' : 'none';
+      document.getElementById('authError').textContent = '';
+    }
+    
+    function doLogin() {
+      if(!auth) return alert("Configure as chaves do Firebase!");
+      auth.signInWithEmailAndPassword(document.getElementById('authEmail').value, document.getElementById('authPass').value).catch(() => document.getElementById('authError').textContent = "Erro de login.");
+    }
+
+    function doRegister() {
+      if(!auth) return alert("Configure as chaves do Firebase!");
+      auth.createUserWithEmailAndPassword(document.getElementById('authEmail').value, document.getElementById('authPass').value).catch(err => document.getElementById('authError').textContent = err.message);
+    }
+
+    const board = document.getElementById('board');
+    const trashCan = document.getElementById('trash-can');
+    let topZIndex = 100;
+
+    function changeBackground(bgClass) { board.className = bgClass; }
+
+    function createPostit(text = "", posX = null, posY = null, colorId = null, width = 240, height = 240, savedRotation = null, canvasData = null) {
       topZIndex++;
-      
       const postit = document.createElement('div');
-      const color = document.getElementById('colorSelect').value;
-      
+      const color = colorId || document.getElementById('colorSelect').value;
       const x = posX !== null ? posX : Math.random() * (window.innerWidth - 300) + 50;
       const y = posY !== null ? posY : Math.random() * (window.innerHeight - 300) + 80;
-      
-      // Define a rotação inicial aleatória
-      const baseRotation = (Math.random() * 10) - 5; 
+      const baseRotation = savedRotation !== null ? savedRotation : (Math.random() * 10) - 5; 
 
       postit.className = `postit ${color}`;
+      postit.dataset.color = color;
       postit.style.left = `${x}px`;
       postit.style.top = `${y}px`;
-      // PASSANDO A ROTAÇÃO COMO VARIÁVEL CSS EM VEZ DE TRANSFORM DIRETO
+      postit.style.width = `${width}px`;
+      postit.style.height = `${height}px`;
       postit.style.setProperty('--rot', `${baseRotation}deg`);
       postit.style.zIndex = topZIndex;
       postit.dataset.rotation = baseRotation;
@@ -207,99 +303,206 @@
             <button class="tool-btn btn-draw" title="Desenhar" onclick="setMode(this, 'draw')">✎</button>
             <button class="tool-btn" title="Limpar" onclick="clearCanvas(this)">↺</button>
           </div>
-          <button class="tool-btn btn-close" title="Excluir" onclick="this.closest('.postit').remove()">✕</button>
         </div>
         <textarea class="postit-text" placeholder="Escreva algo...">${text}</textarea>
         <canvas class="postit-canvas"></canvas>
+        <div class="rotate-handle" title="Girar">↻</div>
+        <div class="resize-handle" title="Redimensionar"></div>
       `;
 
       board.appendChild(postit);
 
       const canvas = postit.querySelector('.postit-canvas');
       const ctx = canvas.getContext('2d');
-      canvas.width = 240;
-      canvas.height = 190;
-      ctx.lineWidth = 4;
-      ctx.lineCap = 'round';
-      ctx.strokeStyle = 'rgba(0,0,0,0.7)'; 
+      canvas.width = width;
+      canvas.height = height - 50;
+      
+      const setupBrush = () => { ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.strokeStyle = 'rgba(0,0,0,0.7)'; };
+      setupBrush();
+
+      if(canvasData) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0);
+        img.src = canvasData;
+      }
 
       let isDrawing = false;
-
-      canvas.addEventListener('mousedown', (e) => {
-        isDrawing = true;
-        ctx.beginPath();
-        ctx.moveTo(e.offsetX, e.offsetY);
-      });
-      canvas.addEventListener('mousemove', (e) => {
-        if (isDrawing) {
-          ctx.lineTo(e.offsetX, e.offsetY);
-          ctx.stroke();
-        }
-      });
+      canvas.addEventListener('mousedown', e => { isDrawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
+      canvas.addEventListener('mousemove', e => { if(isDrawing){ ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } });
       canvas.addEventListener('mouseup', () => isDrawing = false);
       canvas.addEventListener('mouseleave', () => isDrawing = false);
 
       makeDraggable(postit);
+      makeResizable(postit, canvas, ctx, setupBrush);
+      makeRotatable(postit);
+    }
+
+    // ---------------------------------------------
+    // ROTAÇÃO MANUAL (GIRAR)
+    // ---------------------------------------------
+    function makeRotatable(postit) {
+      const handle = postit.querySelector('.rotate-handle');
+      handle.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        let isRotating = true;
+        const startX = e.clientX;
+        const startRot = parseFloat(postit.dataset.rotation);
+
+        const onMouseMove = (ev) => {
+          if (!isRotating) return;
+          // Calcula a rotação com base no movimento do mouse na horizontal (esq/dir)
+          const diffX = ev.clientX - startX;
+          const newRot = startRot + (diffX * 0.5); // Multiplicador para deixar suave
+          
+          postit.style.setProperty('--rot', `${newRot}deg`);
+          postit.dataset.rotation = newRot;
+        };
+
+        const onMouseUp = () => {
+          isRotating = false;
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+        };
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      });
+    }
+
+    // ---------------------------------------------
+    // REDIMENSIONAMENTO MANUAL
+    // ---------------------------------------------
+    function makeResizable(postit, canvas, ctx, setupBrush) {
+      const handle = postit.querySelector('.resize-handle');
+      handle.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        let isResizing = true;
+        const startX = e.clientX, startY = e.clientY;
+        const startW = postit.offsetWidth, startH = postit.offsetHeight;
+        const savedImage = canvas.toDataURL();
+
+        const onMouseMove = (ev) => {
+          if (!isResizing) return;
+          const newW = Math.max(180, startW + (ev.clientX - startX));
+          const newH = Math.max(180, startH + (ev.clientY - startY));
+          postit.style.width = `${newW}px`; postit.style.height = `${newH}px`;
+          canvas.width = newW; canvas.height = newH - 50;
+        };
+
+        const onMouseUp = () => {
+          isResizing = false;
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+          const img = new Image();
+          img.onload = () => { ctx.drawImage(img, 0, 0); setupBrush(); };
+          img.src = savedImage;
+        };
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      });
+    }
+
+    // ---------------------------------------------
+    // DRAG AND DROP & LIXEIRA
+    // ---------------------------------------------
+    function makeDraggable(element) {
+      let offsetX = 0, offsetY = 0, isDragging = false;
+      
+      element.addEventListener('mousedown', (e) => {
+        if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON' || e.target.classList.contains('resize-handle') || e.target.classList.contains('rotate-handle') || element.classList.contains('mode-draw')) {
+          topZIndex++; element.style.zIndex = topZIndex; return;
+        }
+        isDragging = true; 
+        element.classList.add('dragging');
+        topZIndex++; element.style.zIndex = topZIndex;
+        offsetX = e.clientX - element.offsetLeft; offsetY = e.clientY - element.offsetTop;
+      });
+      
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        element.style.left = `${e.clientX - offsetX}px`; 
+        element.style.top = `${e.clientY - offsetY}px`;
+
+        // Verifica se está em cima da Lixeira
+        const trashRect = trashCan.getBoundingClientRect();
+        const overTrash = (e.clientX > trashRect.left && e.clientX < trashRect.right &&
+                           e.clientY > trashRect.top && e.clientY < trashRect.bottom);
+        
+        if (overTrash) trashCan.classList.add('hovering');
+        else trashCan.classList.remove('hovering');
+      });
+      
+      document.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        isDragging = false; 
+        element.classList.remove('dragging');
+
+        // Se soltar em cima da lixeira -> Animação de amassar e excluir
+        if (trashCan.classList.contains('hovering')) {
+          trashCan.classList.remove('hovering');
+          
+          const trashRect = trashCan.getBoundingClientRect();
+          const targetX = trashRect.left + (trashRect.width / 2) - (element.offsetWidth / 2);
+          const targetY = trashRect.top + (trashRect.height / 2) - (element.offsetHeight / 2);
+          
+          element.style.left = `${targetX}px`;
+          element.style.top = `${targetY}px`;
+          element.classList.add('crumpling'); // Ativa o CSS que encolhe e gira o post-it
+          
+          setTimeout(() => element.remove(), 400); // Remove o elemento após a animação
+        }
+      });
     }
 
     function setMode(btn, mode) {
       const postit = btn.closest('.postit');
-      const buttons = postit.querySelectorAll('.postit-tools .tool-btn');
-      
-      buttons.forEach(b => b.classList.remove('active'));
+      postit.querySelectorAll('.postit-tools .tool-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-
-      if (mode === 'draw') {
-        postit.classList.add('mode-draw');
-      } else {
-        postit.classList.remove('mode-draw');
-      }
+      mode === 'draw' ? postit.classList.add('mode-draw') : postit.classList.remove('mode-draw');
     }
 
     function clearCanvas(btn) {
       const canvas = btn.closest('.postit').querySelector('.postit-canvas');
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    function makeDraggable(element) {
-      let offsetX = 0, offsetY = 0, isDragging = false;
-
-      element.addEventListener('mousedown', (e) => {
-        if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON' || element.classList.contains('mode-draw')) {
-          topZIndex++; element.style.zIndex = topZIndex;
-          return;
-        }
-
-        isDragging = true;
-        element.classList.add('dragging');
-        topZIndex++; element.style.zIndex = topZIndex;
-
-        offsetX = e.clientX - element.offsetLeft;
-        offsetY = e.clientY - element.offsetTop;
+    async function saveToCloud() {
+      if(!currentUser || !db) return alert("Faça login para salvar!");
+      const btn = document.getElementById('btnSync');
+      btn.textContent = "⏳ Salvando...";
+      const postitsData = Array.from(document.querySelectorAll('.postit')).map(p => {
+        return {
+          text: p.querySelector('textarea').value, color: p.dataset.color,
+          x: parseInt(p.style.left), y: parseInt(p.style.top),
+          w: parseInt(p.style.width), h: parseInt(p.style.height),
+          rot: parseFloat(p.dataset.rotation), canvas: p.querySelector('canvas').toDataURL()
+        };
       });
+      try {
+        await db.collection('mesas').doc(currentUser.uid).set({ postits: postitsData });
+        btn.textContent = "✅ Salvo!"; setTimeout(() => btn.textContent = "☁️ Salvar na Nuvem", 2000);
+      } catch (err) { btn.textContent = "❌ Erro"; }
+    }
 
-      document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        element.style.left = `${e.clientX - offsetX}px`;
-        element.style.top = `${e.clientY - offsetY}px`;
-      });
-
-      document.addEventListener('mouseup', () => {
-        if (isDragging) {
-          isDragging = false;
-          element.classList.remove('dragging');
-        }
-      });
+    async function loadFromCloud() {
+      if(!currentUser || !db) return;
+      try {
+        const doc = await db.collection('mesas').doc(currentUser.uid).get();
+        if(doc.exists && doc.data().postits) {
+          board.innerHTML = '';
+          doc.data().postits.forEach(data => createPostit(data.text, data.x, data.y, data.color, data.w, data.h, data.rot, data.canvas));
+        } else createPostit("Bem-vindo à sua Mesa Cloud! ☁️", 100, 150);
+      } catch(err) { console.error(err); }
     }
 
     window.onload = () => {
-      createPostit("Comprar café em grãos ☕", window.innerWidth/2 - 250, window.innerHeight/2 - 150);
-      
-      document.getElementById('colorSelect').value = 'pink';
-      createPostit("Revisar o protótipo às 15h!\n\n(Não esquecer do link do figma)", window.innerWidth/2 + 50, window.innerHeight/2 - 50);
-      
-      document.getElementById('colorSelect').value = 'yellow';
+      if(firebaseConfig.apiKey === "SUA_API_KEY") {
+        createPostit("Gire pelo ícone ↻\nou\nArraste para a lixeira 🗑️", window.innerWidth/2 - 250, window.innerHeight/2 - 150);
+        document.getElementById('colorSelect').value = 'pink';
+        createPostit("O arraste agora respeita a angulação que você escolheu!", window.innerWidth/2 + 50, window.innerHeight/2 - 50);
+        document.getElementById('colorSelect').value = 'yellow';
+      }
     };
   </script>
 </body>
