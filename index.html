@@ -5,25 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mesa de Post-its Pro</title>
   
-  <!-- Fontes do Google -->
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
   
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
     body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jakarta Sans', sans-serif; }
 
-    /* Estilos dos Fundos da Mesa Melhorados */
     #board { width: 100vw; height: 100vh; position: relative; transition: background 0.4s ease-in-out; }
 
-    /* Madeira mais realista */
     .bg-wood {
       background-color: #8b5a2b;
       background-image: 
         repeating-linear-gradient(45deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 2px, transparent 2px, transparent 4px),
         linear-gradient(90deg, #8b5a2b, #9c6835, #8b5a2b);
     }
-
-    /* Cortiça hiper-realista */
     .bg-cork {
       background-color: #b58150;
       background-image: 
@@ -32,14 +27,10 @@
       background-size: 14px 14px;
       background-position: 0 0, 7px 7px;
     }
-
-    /* Minimalista Dark Escovado */
     .bg-dark {
       background: #111827;
       background-image: radial-gradient(circle at center, #1f2937 0%, #111827 100%);
     }
-
-    /* Lousa Escolar */
     .bg-slate {
       background-color: #264635;
       background-image: 
@@ -49,7 +40,6 @@
       background-position: 0 0, 10px 10px;
     }
 
-    /* Barra de Ferramentas Estilo "Dock" da Apple */
     #toolbar {
       position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
       background: rgba(255, 255, 255, 0.7);
@@ -59,7 +49,6 @@
       border: 1px solid rgba(255,255,255,0.3);
       display: flex; gap: 20px; align-items: center; z-index: 99999;
     }
-
     .toolbar-group { display: flex; align-items: center; gap: 8px; border-right: 1px solid rgba(0,0,0,0.1); padding-right: 20px; }
     .toolbar-group:last-child { border: none; padding-right: 0; }
 
@@ -75,63 +64,56 @@
     select {
       padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.1);
       background: rgba(255,255,255,0.5); outline: none; cursor: pointer;
-      font-family: inherit; font-weight: 600; color: #334155;
-      transition: 0.2s;
+      font-family: inherit; font-weight: 600; color: #334155; transition: 0.2s;
     }
     select:hover { background: rgba(255,255,255,0.9); }
 
-    /* Animação de entrada do Post-it */
+    /* CORREÇÃO DO BUG DE ROTAÇÃO: Usando variável CSS --rot */
     @keyframes popIn {
-      0% { transform: scale(0.5) translateY(-50px); opacity: 0; }
-      100% { transform: scale(1) translateY(0); opacity: 1; }
+      0% { transform: scale(0.5) translateY(-50px) rotate(var(--rot)); opacity: 0; }
+      100% { transform: scale(1) translateY(0) rotate(var(--rot)); opacity: 1; }
     }
 
-    /* Estilo do Post-it Realista */
+    /* Sombras Múltiplas Realistas (Sem o ::before falso) */
     .postit {
       position: absolute; width: 240px; height: 240px; padding: 20px 20px 15px;
       cursor: grab; display: flex; flex-direction: column;
+      transform: rotate(var(--rot));
       animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-      /* Efeito de papel com leve iluminação interna */
+      border-bottom-right-radius: 12px 4px; /* Suavizado */
       box-shadow: 
-        2px 8px 20px rgba(0,0,0,0.12), 
-        inset 0 0 40px rgba(0,0,0,0.03);
-      border-bottom-right-radius: 40px 4px; /* Ponta levemente curvada */
-      transition: transform 0.2s, box-shadow 0.2s;
+        0 2px 4px rgba(0,0,0,0.08), 
+        0 6px 12px rgba(0,0,0,0.1), 
+        0 12px 24px rgba(0,0,0,0.12),
+        inset 0 0 30px rgba(0,0,0,0.03); /* Iluminação interna sutil */
+      transition: box-shadow 0.2s, transform 0.2s cubic-bezier(0.2, 0, 0, 1);
     }
 
-    /* Sombra curvada embaixo (efeito folha levantada) */
-    .postit::before {
-      content: ""; position: absolute; z-index: -1;
-      bottom: 12px; right: 10px; left: 10px; top: 80%;
-      box-shadow: 0 15px 15px rgba(0,0,0,0.25);
-      transform: rotate(2deg);
-    }
-
-    /* Fita Adesiva (Durex) translúcida no topo */
     .tape {
       position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-2deg);
-      width: 90px; height: 30px;
-      background: rgba(255, 255, 255, 0.4);
-      backdrop-filter: blur(2px);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      border-left: 1px dashed rgba(255,255,255,0.6);
-      border-right: 1px dashed rgba(255,255,255,0.6);
+      width: 90px; height: 25px;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(1px);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.3);
+      border-left: 2px solid rgba(255,255,255,0.2);
+      border-right: 2px solid rgba(255,255,255,0.2);
       z-index: 10; cursor: move;
     }
 
     .postit.dragging {
       cursor: grabbing;
-      box-shadow: 10px 25px 35px rgba(0,0,0,0.25);
+      transform: scale(1.05) rotate(0deg) !important;
+      box-shadow: 
+        0 10px 20px rgba(0,0,0,0.15), 
+        0 25px 40px rgba(0,0,0,0.2); /* Sombra afasta do papel quando levantado */
     }
 
-    /* Gradientes suaves para as cores */
-    .yellow { background: linear-gradient(135deg, #fff7a1, #ffe44d); }
-    .pink   { background: linear-gradient(135deg, #ff9ecd, #ff6eb4); }
-    .green  { background: linear-gradient(135deg, #a1ffeb, #5ce1c6); }
-    .orange { background: linear-gradient(135deg, #ffc2a1, #ff8a4d); }
-    .purple { background: linear-gradient(135deg, #e7d9ff, #c3a1ff); }
+    .yellow { background: linear-gradient(135deg, #fff7a1, #ffea6b); }
+    .pink   { background: linear-gradient(135deg, #ff9ecd, #ff7dbd); }
+    .green  { background: linear-gradient(135deg, #a1ffeb, #6ef2d7); }
+    .orange { background: linear-gradient(135deg, #ffc2a1, #ff9d6b); }
+    .purple { background: linear-gradient(135deg, #e7d9ff, #cbaeff); }
 
-    /* Barra de Controle Interna (Oculta até passar o mouse) */
     .postit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; cursor: move; opacity: 0; transition: 0.2s; }
     .postit:hover .postit-header { opacity: 1; }
     .postit-tools { display: flex; gap: 6px; }
@@ -145,7 +127,6 @@
     .tool-btn.active { background: #1e293b; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
     .btn-close { color: #ef4444; }
 
-    /* Área de Texto - Fonte manuscrita */
     .postit-text {
       width: 100%; height: 100%; border: none; background: transparent; resize: none; outline: none;
       font-family: 'Caveat', cursive; font-size: 26px; font-weight: 700;
@@ -153,19 +134,16 @@
     }
     .postit-text::placeholder { color: rgba(0,0,0,0.3); }
 
-    /* Canvas para Rabiscar */
     .postit-canvas {
       position: absolute; top: 50px; left: 0; width: 100%; height: calc(100% - 50px);
       pointer-events: none; z-index: 2;
     }
-
     .mode-draw .postit-canvas { pointer-events: auto; cursor: crosshair; }
     .mode-draw .postit-text { pointer-events: none; }
   </style>
 </head>
 <body>
 
-  <!-- Dock de Ferramentas -->
   <div id="toolbar">
     <div class="toolbar-group">
       <button class="btn btn-add" onclick="createPostit()">
@@ -191,8 +169,7 @@
     </div>
   </div>
 
-  <!-- A Mesa onde tudo acontece -->
-  <div id="board" class="bg-cork"></div>
+  <div id="board" class="bg-wood"></div>
 
   <script>
     const board = document.getElementById('board');
@@ -208,17 +185,18 @@
       const postit = document.createElement('div');
       const color = document.getElementById('colorSelect').value;
       
-      // Posição inicial
       const x = posX !== null ? posX : Math.random() * (window.innerWidth - 300) + 50;
       const y = posY !== null ? posY : Math.random() * (window.innerHeight - 300) + 80;
+      
+      // Define a rotação inicial aleatória
       const baseRotation = (Math.random() * 10) - 5; 
 
       postit.className = `postit ${color}`;
       postit.style.left = `${x}px`;
       postit.style.top = `${y}px`;
-      postit.style.transform = `rotate(${baseRotation}deg)`;
+      // PASSANDO A ROTAÇÃO COMO VARIÁVEL CSS EM VEZ DE TRANSFORM DIRETO
+      postit.style.setProperty('--rot', `${baseRotation}deg`);
       postit.style.zIndex = topZIndex;
-      // Salva a rotação base para usar no hover/drag
       postit.dataset.rotation = baseRotation;
 
       postit.innerHTML = `
@@ -237,7 +215,6 @@
 
       board.appendChild(postit);
 
-      // Configurar Canvas
       const canvas = postit.querySelector('.postit-canvas');
       const ctx = canvas.getContext('2d');
       canvas.width = 240;
@@ -253,14 +230,12 @@
         ctx.beginPath();
         ctx.moveTo(e.offsetX, e.offsetY);
       });
-
       canvas.addEventListener('mousemove', (e) => {
         if (isDrawing) {
           ctx.lineTo(e.offsetX, e.offsetY);
           ctx.stroke();
         }
       });
-
       canvas.addEventListener('mouseup', () => isDrawing = false);
       canvas.addEventListener('mouseleave', () => isDrawing = false);
 
@@ -289,7 +264,6 @@
 
     function makeDraggable(element) {
       let offsetX = 0, offsetY = 0, isDragging = false;
-      const baseRotation = element.dataset.rotation;
 
       element.addEventListener('mousedown', (e) => {
         if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON' || element.classList.contains('mode-draw')) {
@@ -300,9 +274,6 @@
         isDragging = true;
         element.classList.add('dragging');
         topZIndex++; element.style.zIndex = topZIndex;
-        
-        // Dá um "lift" no papel ao agarrar (escala levemente e zera a rotação para alinhar com o mouse)
-        element.style.transform = `scale(1.05) rotate(0deg)`;
 
         offsetX = e.clientX - element.offsetLeft;
         offsetY = e.clientY - element.offsetTop;
@@ -318,21 +289,17 @@
         if (isDragging) {
           isDragging = false;
           element.classList.remove('dragging');
-          // Retorna a escala ao normal, mas mantém a rotação tortinha original
-          element.style.transform = `scale(1) rotate(${baseRotation}deg)`;
         }
       });
     }
 
-    // Post-its iniciais charmosos
     window.onload = () => {
       createPostit("Comprar café em grãos ☕", window.innerWidth/2 - 250, window.innerHeight/2 - 150);
       
-      // Muda a cor no seletor e cria outro
       document.getElementById('colorSelect').value = 'pink';
       createPostit("Revisar o protótipo às 15h!\n\n(Não esquecer do link do figma)", window.innerWidth/2 + 50, window.innerHeight/2 - 50);
       
-      document.getElementById('colorSelect').value = 'yellow'; // Volta ao padrão
+      document.getElementById('colorSelect').value = 'yellow';
     };
   </script>
 </body>
