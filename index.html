@@ -2,124 +2,169 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mesa de Post-its Pro + Cloud + Lixeira</title>
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mesa de Post-its — Cloud</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
-  
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body, html { width: 100%; height: 100%; overflow: hidden; font-family: 'Plus Jakarta Sans', sans-serif; }
 
-    #board { width: 100vw; height: 100vh; position: relative; transition: background 0.4s ease-in-out; }
+    /* ================= MESA / TEXTURAS ================= */
+    #board { width: 100vw; height: 100vh; position: relative; transition: background 0.5s ease-in-out; }
 
     .bg-wood {
       background-color: #8b5a2b;
-      background-image: 
+      background-image:
         repeating-linear-gradient(45deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 2px, transparent 2px, transparent 4px),
         linear-gradient(90deg, #8b5a2b, #9c6835, #8b5a2b);
     }
     .bg-cork {
       background-color: #b58150;
-      background-image: radial-gradient(rgba(0,0,0,0.08) 15%, transparent 16%), radial-gradient(rgba(255,255,255,0.08) 15%, transparent 16%);
-      background-size: 14px 14px; background-position: 0 0, 7px 7px;
+      background-image:
+        radial-gradient(rgba(0,0,0,0.10) 1.5px, transparent 1.6px),
+        radial-gradient(rgba(255,255,255,0.10) 1.5px, transparent 1.6px),
+        radial-gradient(rgba(0,0,0,0.05) 3px, transparent 3.2px);
+      background-size: 14px 14px, 14px 14px, 42px 42px;
+      background-position: 0 0, 7px 7px, 12px 10px;
     }
     .bg-dark {
-      background: #111827; background-image: radial-gradient(circle at center, #1f2937 0%, #111827 100%);
+      background: radial-gradient(circle at 30% 20%, #1e293b 0%, #0b1220 70%);
     }
     .bg-slate {
       background-color: #264635;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.03) 10%, transparent 10%), radial-gradient(circle, rgba(255,255,255,0.02) 10%, transparent 10%);
-      background-size: 20px 20px; background-position: 0 0, 10px 10px;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px),
+        radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.015), rgba(255,255,255,0.015));
+      background-size: 22px 22px, 11px 11px, 100% 100%;
+      background-position: 0 0, 5px 5px, 0 0;
+    }
+    /* vinheta que dá profundidade em qualquer fundo */
+    #board::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.28) 100%);
     }
 
+    /* ================= BARRA DE FERRAMENTAS ================= */
     #toolbar {
-      position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      padding: 12px 24px; border-radius: 100px; box-shadow: 0 10px 40px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
-      border: 1px solid rgba(255,255,255,0.3); display: flex; gap: 20px; align-items: center; z-index: 99999;
+      position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      padding: 10px 20px; border-radius: 100px; box-shadow: 0 12px 45px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.6);
+      border: 1px solid rgba(255,255,255,0.35); display: flex; gap: 18px; align-items: center; z-index: 99999;
+      animation: toolbarIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    .toolbar-group { display: flex; align-items: center; gap: 8px; border-right: 1px solid rgba(0,0,0,0.1); padding-right: 20px; }
+    @keyframes toolbarIn {
+      from { transform: translateX(-50%) translateY(80px); opacity: 0; }
+      to   { transform: translateX(-50%) translateY(0); opacity: 1; }
+    }
+    .toolbar-group { display: flex; align-items: center; gap: 8px; border-right: 1px solid rgba(0,0,0,0.08); padding-right: 18px; }
     .toolbar-group:last-child { border: none; padding-right: 0; }
 
     .btn {
       background: transparent; border: none; padding: 10px 16px; border-radius: 30px;
       cursor: pointer; font-weight: 700; font-size: 14px; color: #1e293b;
       display: flex; align-items: center; gap: 8px; transition: all 0.2s;
+      font-family: inherit;
     }
     .btn:hover { background: rgba(0,0,0,0.05); }
-    .btn-add { background: #1e293b; color: white; box-shadow: 0 4px 12px rgba(30, 41, 59, 0.3); }
-    .btn-add:hover { background: #0f172a; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(30, 41, 59, 0.4); }
-    .btn-sync { background: #10b981; color: white; display: none; }
-    .btn-sync:hover { background: #059669; }
+    .btn:active { transform: scale(0.95); }
+    .btn-add { background: linear-gradient(135deg, #334155, #0f172a); color: white; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.35); }
+    .btn-add:hover { background: linear-gradient(135deg, #475569, #1e293b); transform: translateY(-2px); box-shadow: 0 7px 20px rgba(15, 23, 42, 0.45); }
 
     select {
-      padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.1);
+      padding: 8px 14px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.1);
       background: rgba(255,255,255,0.5); outline: none; cursor: pointer;
-      font-family: inherit; font-weight: 600; color: #334155; transition: 0.2s;
+      font-family: inherit; font-weight: 600; font-size: 13px; color: #334155; transition: 0.2s;
     }
     select:hover { background: rgba(255,255,255,0.9); }
 
+    /* paleta de cores rápida */
+    .palette { display: flex; gap: 6px; align-items: center; }
+    .swatch {
+      width: 24px; height: 24px; border-radius: 50%; cursor: pointer;
+      border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .swatch:hover { transform: scale(1.25); }
+    .swatch.selected { transform: scale(1.25); border-color: #1e293b; }
+
+    /* ================= POST-IT ================= */
     @keyframes popIn {
-      0% { transform: scale(0.5) translateY(-50px) rotate(var(--rot)); opacity: 0; }
+      0%   { transform: scale(0.4) translateY(-60px) rotate(calc(var(--rot) - 14deg)); opacity: 0; }
       100% { transform: scale(1) translateY(0) rotate(var(--rot)); opacity: 1; }
+    }
+    @keyframes wobble {
+      0% { transform: rotate(var(--rot)) scale(1); }
+      30% { transform: rotate(calc(var(--rot) - 1.5deg)) scale(1.01); }
+      60% { transform: rotate(calc(var(--rot) + 1deg)) scale(1.005); }
+      100% { transform: rotate(var(--rot)) scale(1); }
     }
 
     .postit {
       position: absolute; width: 240px; height: 240px; padding: 20px 20px 15px;
       cursor: grab; display: flex; flex-direction: column;
       transform: rotate(var(--rot));
-      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-      border-bottom-right-radius: 12px 4px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.08), 0 6px 12px rgba(0,0,0,0.1), 0 12px 24px rgba(0,0,0,0.12), inset 0 0 30px rgba(0,0,0,0.03);
-      transition: box-shadow 0.2s, transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+      animation: popIn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      border-bottom-right-radius: 14px 5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.12), 0 10px 22px rgba(0,0,0,0.14), inset 0 0 35px rgba(0,0,0,0.04);
+      transition: box-shadow 0.25s, filter 0.25s;
       min-width: 180px; min-height: 180px;
     }
+    .postit:hover { filter: brightness(1.03); }
+    .postit:active { cursor: grabbing; }
+    .postit.dragging {
+      transform: scale(1.06) rotate(var(--rot)) !important;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.28), 0 30px 55px rgba(0,0,0,0.2);
+      filter: brightness(1.05);
+    }
+    /* leve balanço ao soltar */
+    .postit.dropped { animation: wobble 0.45s ease-out; }
+
+    .postit.crumpling {
+      transition: all 0.45s cubic-bezier(0.5, 0, 0.8, 0.2) !important;
+      transform: scale(0.03) rotate(calc(var(--rot) + 540deg)) !important;
+      opacity: 0; pointer-events: none;
+      filter: blur(2px);
+    }
+
+    .yellow { background: linear-gradient(160deg, #fff9b0 0%, #ffed6e 55%, #ffe14d 100%); }
+    .pink   { background: linear-gradient(160deg, #ffb3d9 0%, #ff86c6 55%, #ff6fb8 100%); }
+    .green  { background: linear-gradient(160deg, #b6fff0 0%, #7df5dc 55%, #5deed0 100%); }
+    .orange { background: linear-gradient(160deg, #ffd0ac 0%, #ffa875 55%, #ff9357 100%); }
+    .purple { background: linear-gradient(160deg, #eee2ff 0%, #d3bcff 55%, #c2a4ff 100%); }
+    .blue   { background: linear-gradient(160deg, #bfe3ff 0%, #8ec9ff 55%, #74baff 100%); }
+    .red    { background: linear-gradient(160deg, #ffc4c4 0%, #ff9a9a 55%, #ff8282 100%); }
 
     .tape {
       position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-2deg);
-      width: 90px; height: 25px; background: rgba(255, 255, 255, 0.45);
-      backdrop-filter: blur(1px); box-shadow: 0 1px 2px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.3);
-      border-left: 2px solid rgba(255,255,255,0.2); border-right: 2px solid rgba(255,255,255,0.2);
-      z-index: 10; cursor: move;
+      width: 92px; height: 26px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.5), rgba(255,255,255,0.32));
+      backdrop-filter: blur(1px); box-shadow: 0 1px 3px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.35);
+      border-left: 2px solid rgba(255,255,255,0.25); border-right: 2px solid rgba(255,255,255,0.25);
+      clip-path: polygon(0 0, 100% 0, 96% 100%, 3% 100%);
+      z-index: 10;
     }
-
-    .postit.dragging {
-      cursor: grabbing;
-      /* Agora a rotação acompanha enquanto você arrasta */
-      transform: scale(1.05) rotate(var(--rot)) !important;
-      box-shadow: 0 15px 30px rgba(0,0,0,0.2), 0 25px 40px rgba(0,0,0,0.15);
-    }
-
-    /* Animação de ser amassado para o lixo */
-    .postit.crumpling {
-      transition: all 0.4s cubic-bezier(0.5, 0, 0.8, 0.2) !important;
-      transform: scale(0.05) rotate(calc(var(--rot) + 360deg)) !important;
-      opacity: 0; pointer-events: none;
-    }
-
-    .yellow { background: linear-gradient(135deg, #fff7a1, #ffea6b); }
-    .pink   { background: linear-gradient(135deg, #ff9ecd, #ff7dbd); }
-    .green  { background: linear-gradient(135deg, #a1ffeb, #6ef2d7); }
-    .orange { background: linear-gradient(135deg, #ffc2a1, #ff9d6b); }
-    .purple { background: linear-gradient(135deg, #e7d9ff, #cbaeff); }
 
     .postit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; cursor: move; opacity: 0; transition: 0.2s; }
-    .postit:hover .postit-header { opacity: 1; }
-    .postit-tools { display: flex; gap: 6px; }
+    .postit:hover .postit-header, .postit:focus-within .postit-header { opacity: 1; }
+    .postit-tools { display: flex; gap: 5px; }
 
     .tool-btn {
-      background: rgba(255, 255, 255, 0.5); border: none; width: 28px; height: 28px;
-      border-radius: 8px; cursor: pointer; font-size: 14px;
-      display: flex; align-items: center; justify-content: center; transition: 0.2s;
+      background: rgba(255, 255, 255, 0.55); border: none; width: 28px; height: 28px;
+      border-radius: 9px; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; transition: 0.15s;
     }
-    .tool-btn:hover { background: rgba(255, 255, 255, 0.9); transform: scale(1.1); }
-    .tool-btn.active { background: #1e293b; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .tool-btn:hover { background: rgba(255, 255, 255, 0.95); transform: scale(1.12); }
+    .tool-btn:active { transform: scale(0.92); }
+    .tool-btn.active { background: #1e293b; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
 
     .postit-text {
       width: 100%; flex: 1; border: none; background: transparent; resize: none; outline: none;
       font-family: 'Caveat', cursive; font-size: 26px; font-weight: 700;
-      color: rgba(0,0,0,0.8); line-height: 1.2; user-select: text;
+      color: rgba(0,0,0,0.82); line-height: 1.2; user-select: text; cursor: text;
     }
     .postit-text::placeholder { color: rgba(0,0,0,0.3); }
 
@@ -130,44 +175,81 @@
     .mode-draw .postit-canvas { pointer-events: auto; cursor: crosshair; }
     .mode-draw .postit-text { pointer-events: none; }
 
-    /* Controles de Canto (Redimensionar e Girar) */
     .resize-handle, .rotate-handle {
       position: absolute; bottom: 4px; width: 24px; height: 24px;
       display: flex; align-items: center; justify-content: center;
       opacity: 0; transition: 0.2s; z-index: 10;
     }
-    .postit:hover .resize-handle, .postit:hover .rotate-handle { opacity: 0.5; }
-    .resize-handle:hover, .rotate-handle:hover { opacity: 1 !important; transform: scale(1.1); }
-    
+    .postit:hover .resize-handle, .postit:hover .rotate-handle { opacity: 0.55; }
     .resize-handle { right: 4px; cursor: nwse-resize; align-items: flex-end; justify-content: flex-end; padding: 4px; }
-    .resize-handle::after { content: ''; width: 8px; height: 8px; border-right: 2px solid rgba(0,0,0,0.5); border-bottom: 2px solid rgba(0,0,0,0.5); }
-    
-    .rotate-handle { left: 4px; cursor: alias; color: rgba(0,0,0,0.6); }
+    .resize-handle::after { content: ''; width: 8px; height: 8px; border-right: 2.5px solid rgba(0,0,0,0.55); border-bottom: 2.5px solid rgba(0,0,0,0.55); border-bottom-right-radius: 3px; }
+    .rotate-handle { left: 4px; cursor: alias; color: rgba(0,0,0,0.6); font-size: 16px; }
 
-    /* LIXEIRA FLUTUANTE */
+    /* ================= LIXEIRA ================= */
     #trash-can {
-      position: fixed; right: 30px; bottom: 30px; width: 64px; height: 64px;
-      background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px);
+      position: fixed; right: 28px; bottom: 28px; width: 66px; height: 66px;
+      background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(12px);
       border: 2px dashed rgba(0,0,0,0.2); border-radius: 50%;
       display: flex; align-items: center; justify-content: center; font-size: 28px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: all 0.2s; z-index: 99998;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.08); transition: all 0.2s; z-index: 99998;
     }
-    #trash-can.hovering { background: #fee2e2; border-color: #ef4444; transform: scale(1.2); box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3); }
+    #trash-can.hovering { background: #fee2e2; border-color: #ef4444; transform: scale(1.25) rotate(-8deg); box-shadow: 0 12px 35px rgba(239, 68, 68, 0.35); }
 
-    /* Autenticação */
+    /* ================= AUTENTICAÇÃO ================= */
     #corner-login {
       position: fixed; bottom: 15px; left: 15px; z-index: 99999;
-      background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.3); padding: 6px 12px; border-radius: 8px;
-      font-size: 12px; font-weight: 700; cursor: pointer; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.5); transition: 0.2s;
+      background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.25); padding: 7px 14px; border-radius: 100px;
+      font-size: 12px; font-weight: 700; cursor: pointer; color: #fff; transition: 0.2s;
+      font-family: inherit; box-shadow: 0 4px 14px rgba(0,0,0,0.2);
     }
-    #corner-login:hover { background: rgba(255,255,255,0.4); }
-    #auth-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-    .auth-box { background: #fff; padding: 24px; border-radius: 16px; width: 300px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); text-align: center; }
-    .auth-box h3 { margin-bottom: 16px; color: #1e293b; }
-    .auth-box input { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #cbd5e1; outline: none; font-family: inherit; }
+    #corner-login:hover { background: rgba(15, 23, 42, 0.8); transform: translateY(-1px); }
+
+    #auth-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+    .auth-box { background: #fff; padding: 28px; border-radius: 20px; width: 320px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); text-align: center; animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .auth-box h3 { margin-bottom: 18px; color: #1e293b; font-size: 20px; }
+    .auth-box input { width: 100%; padding: 12px; margin-bottom: 12px; border-radius: 10px; border: 1.5px solid #e2e8f0; outline: none; font-family: inherit; transition: 0.2s; }
+    .auth-box input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
     .auth-box button { width: 100%; margin-bottom: 8px; justify-content: center; }
     .error-msg { color: #ef4444; font-size: 12px; margin-bottom: 10px; min-height: 15px; }
+
+    /* ================= STATUS / TOASTS ================= */
+    #sync-status {
+      position: fixed; top: 15px; right: 15px; z-index: 99999;
+      background: rgba(255,255,255,0.88); backdrop-filter: blur(12px); padding: 8px 15px; border-radius: 100px;
+      font-size: 12px; font-weight: 700; color: #1e293b; box-shadow: 0 5px 18px rgba(0,0,0,0.12);
+      opacity: 0; transform: translateY(-10px); transition: all 0.3s; pointer-events: none;
+    }
+    #sync-status.show { opacity: 1; transform: translateY(0); }
+
+    #toast-container { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); z-index: 100001; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+    .toast {
+      background: rgba(15, 23, 42, 0.92); color: #fff; padding: 10px 18px; border-radius: 100px;
+      font-size: 13px; font-weight: 600; box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+      animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; gap: 12px; align-items: center;
+      backdrop-filter: blur(10px);
+    }
+    .toast button { background: #10b981; border: none; color: #fff; font-weight: 700; padding: 4px 12px; border-radius: 100px; cursor: pointer; font-family: inherit; font-size: 12px; }
+    .toast button:hover { background: #059669; }
+    .toast.out { animation: toastOut 0.3s forwards; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(15px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes toastOut { to { opacity: 0; transform: translateY(15px) scale(0.9); } }
+
+    /* dica inicial */
+    #hint {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5;
+      text-align: center; color: rgba(255,255,255,0.75); pointer-events: none;
+      font-weight: 700; font-size: 18px; text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      transition: opacity 0.5s;
+    }
+    #hint span { display: block; font-size: 42px; margin-bottom: 10px; }
+
+    @media (max-width: 640px) {
+      #toolbar { gap: 10px; padding: 8px 14px; bottom: 16px; }
+      .toolbar-group { padding-right: 10px; }
+      .btn { padding: 8px 12px; font-size: 12px; }
+      .btn span { display: none; }
+    }
   </style>
 <base target="_blank">
 </head>
@@ -176,14 +258,16 @@
   <!-- Menu Central -->
   <div id="toolbar">
     <div class="toolbar-group">
-      <button class="btn btn-add" onclick="createPostit()">➕ Criar Post-it</button>
-      <select id="colorSelect">
-        <option value="yellow">🟡 Amarelo</option>
-        <option value="pink">🌸 Rosa</option>
-        <option value="green">🍃 Verde</option>
-        <option value="orange">🍊 Laranja</option>
-        <option value="purple">🔮 Roxo</option>
-      </select>
+      <button class="btn btn-add" onclick="createPostit()">➕ <span>Criar Post-it</span></button>
+      <div class="palette" id="palette">
+        <div class="swatch yellow selected" data-color="yellow" style="background:#ffea6b" onclick="setColor(this)"></div>
+        <div class="swatch pink" data-color="pink" style="background:#ff7dbd" onclick="setColor(this)"></div>
+        <div class="swatch green" data-color="green" style="background:#6ef2d7" onclick="setColor(this)"></div>
+        <div class="swatch orange" data-color="orange" style="background:#ff9d6b" onclick="setColor(this)"></div>
+        <div class="swatch purple" data-color="purple" style="background:#cbaeff" onclick="setColor(this)"></div>
+        <div class="swatch blue" data-color="blue" style="background:#74baff" onclick="setColor(this)"></div>
+        <div class="swatch red" data-color="red" style="background:#ff8282" onclick="setColor(this)"></div>
+      </div>
     </div>
     <div class="toolbar-group">
       <label for="bgSelect" style="font-size: 13px; font-weight: 700; color: #64748b;">MESA:</label>
@@ -194,13 +278,10 @@
         <option value="bg-dark">🌌 Minimalista Dark</option>
       </select>
     </div>
-    <button class="btn btn-sync" id="btnSync" onclick="saveToCloud()">☁️ Salvar na Nuvem</button>
   </div>
 
-  <!-- Indicador de salvamento automático -->
-  <div id="sync-status" style="display:none; position:fixed; top:15px; right:15px; z-index:99999;
-    background:rgba(255,255,255,0.85); backdrop-filter:blur(10px); padding:8px 14px; border-radius:30px;
-    font-size:12px; font-weight:700; color:#1e293b; box-shadow:0 4px 15px rgba(0,0,0,0.1); transition:0.2s;">💾 Salvando...</div>
+  <!-- Dica quando a mesa está vazia -->
+  <div id="hint" style="display:none"><span>📝</span>Sua mesa está vazia.<br>Clique em ➕ para criar seu primeiro post-it!</div>
 
   <!-- A Mesa -->
   <div id="board" class="bg-wood"></div>
@@ -208,26 +289,29 @@
   <!-- Lixeira Interativa -->
   <div id="trash-can">🗑️</div>
 
-  <!-- Botão e Modal de Login (Canto esquerdo para não cobrir a lixeira) -->
-  <button id="corner-login" onclick="toggleAuthModal()">☁️ Login Cloud</button>
-  
-  <div id="auth-modal" onclick="if(event.target===this) toggleAuthModal()">
+  <!-- Botão e Modal de Login -->
+  <button id="corner-login" onclick="toggleAuthModal()">☁️ Entrar</button>
+
+  <div id="auth-modal" onclick="if(event.target===this) toggleAuthModal(false)">
     <div class="auth-box">
-      <h3>Acesso à Nuvem</h3>
-      <input type="email" id="authEmail" placeholder="E-mail">
-      <input type="password" id="authPass" placeholder="Senha">
+      <h3>☁️ Acesso à Nuvem</h3>
+      <input type="email" id="authEmail" placeholder="E-mail" autocomplete="email">
+      <input type="password" id="authPass" placeholder="Senha" autocomplete="current-password">
       <div id="authError" class="error-msg"></div>
       <button class="btn btn-add" onclick="doLogin()">Entrar</button>
-      <button class="btn" style="background:#f1f5f9; border:1px solid #cbd5e1" onclick="doRegister()">Criar Conta (0800)</button>
+      <button class="btn" style="background:#f1f5f9; border:1px solid #cbd5e1" onclick="doRegister()">Criar Conta (grátis)</button>
     </div>
   </div>
+
+  <div id="sync-status">💾 Salvando...</div>
+  <div id="toast-container"></div>
 
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
   <script>
-    // Configuração do Firebase
+    // ================= FIREBASE =================
     const firebaseConfig = {
       apiKey: "AIzaSyAO3m-EdAKLd22Kxg82ovgy-L3Qev0oR9I",
       authDomain: "post-it-ad392.firebaseapp.com",
@@ -236,8 +320,10 @@
       messagingSenderId: "543114731075",
       appId: "1:543114731075:web:2eac78d7a08f30bbcb3ef6"
     };
-    
+
     let auth, db, currentUser = null;
+    const COLORS = ['yellow','pink','green','orange','purple','blue','red'];
+
     if(firebaseConfig.apiKey !== "SUA_API_KEY") {
       firebase.initializeApp(firebaseConfig);
       auth = firebase.auth();
@@ -246,18 +332,14 @@
       auth.onAuthStateChanged(user => {
         currentUser = user;
         const btnCorner = document.getElementById('corner-login');
-        const btnSync = document.getElementById('btnSync');
         if(user) {
           btnCorner.textContent = "👋 Sair (" + user.email.split('@')[0] + ")";
-          btnCorner.onclick = () => auth.signOut();
-          btnSync.style.display = "flex";
+          btnCorner.onclick = () => { auth.signOut(); location.reload(); };
           toggleAuthModal(false);
           loadFromCloud();
         } else {
-          btnCorner.textContent = "☁️ Login Cloud";
+          btnCorner.textContent = "☁️ Entrar";
           btnCorner.onclick = () => toggleAuthModal(true);
-          btnSync.style.display = "none";
-          document.getElementById('board').innerHTML = '';
         }
       });
     }
@@ -266,30 +348,105 @@
       document.getElementById('auth-modal').style.display = show ? 'flex' : 'none';
       document.getElementById('authError').textContent = '';
     }
-    
+
     function doLogin() {
       if(!auth) return alert("Configure as chaves do Firebase!");
-      auth.signInWithEmailAndPassword(document.getElementById('authEmail').value, document.getElementById('authPass').value).catch(() => document.getElementById('authError').textContent = "Erro de login.");
+      auth.signInWithEmailAndPassword(document.getElementById('authEmail').value, document.getElementById('authPass').value)
+        .catch(() => document.getElementById('authError').textContent = "E-mail ou senha incorretos.");
     }
 
     function doRegister() {
       if(!auth) return alert("Configure as chaves do Firebase!");
-      auth.createUserWithEmailAndPassword(document.getElementById('authEmail').value, document.getElementById('authPass').value).catch(err => document.getElementById('authError').textContent = err.message);
+      auth.createUserWithEmailAndPassword(document.getElementById('authEmail').value, document.getElementById('authPass').value)
+        .catch(err => document.getElementById('authError').textContent = err.message);
     }
 
+    // ================= UTILIDADES =================
     const board = document.getElementById('board');
     const trashCan = document.getElementById('trash-can');
     let topZIndex = 100;
 
+    function setColor(el) {
+      document.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+    function getSelectedColor() {
+      const sel = document.querySelector('.swatch.selected');
+      return sel ? sel.dataset.color : 'yellow';
+    }
+
+    function updateHint() {
+      const has = document.querySelectorAll('.postit').length > 0;
+      document.getElementById('hint').style.display = has ? 'none' : 'block';
+    }
+
     function changeBackground(bgClass) { board.className = bgClass; scheduleAutoSave(); }
 
+    function showToast(msg, undoFn) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `<span>${msg}</span>` + (undoFn ? '<button>Desfazer</button>' : '');
+      if (undoFn) toast.querySelector('button').onclick = () => { undoFn(); toast.remove(); };
+      container.appendChild(toast);
+      setTimeout(() => { toast.classList.add('out'); setTimeout(() => toast.remove(), 300); }, 4500);
+    }
+
+    // ================= SALVAMENTO AUTOMÁTICO =================
+    let saveTimeout = null;
+    function scheduleAutoSave() {
+      if (!currentUser || !db) return;
+      const status = document.getElementById('sync-status');
+      status.textContent = "💾 Salvando...";
+      status.classList.add('show');
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(async () => {
+        const postitsData = Array.from(document.querySelectorAll('.postit')).map(p => ({
+          text: p.querySelector('textarea').value, color: p.dataset.color,
+          x: parseInt(p.style.left), y: parseInt(p.style.top),
+          w: parseInt(p.style.width), h: parseInt(p.style.height),
+          rot: parseFloat(p.dataset.rotation), canvas: p.querySelector('canvas').toDataURL()
+        }));
+        try {
+          await db.collection('mesas').doc(currentUser.uid).set({ postits: postitsData, bg: board.className, updatedAt: Date.now() });
+          status.textContent = "✅ Salvo automaticamente";
+        } catch (err) {
+          status.textContent = "❌ Erro ao salvar";
+        }
+        setTimeout(() => status.classList.remove('show'), 1500);
+        updateHint();
+      }, 1200);
+    }
+
+    async function loadFromCloud() {
+      if(!currentUser || !db) return;
+      try {
+        const doc = await db.collection('mesas').doc(currentUser.uid).get();
+        if(doc.exists && doc.data().postits) {
+          board.innerHTML = '';
+          if(doc.data().bg) {
+            board.className = doc.data().bg;
+            document.getElementById('bgSelect').value = doc.data().bg;
+          }
+          doc.data().postits.forEach((data, i) =>
+            setTimeout(() => createPostit(data.text, data.x, data.y, data.color, data.w, data.h, data.rot, data.canvas), i * 60)
+          );
+        } else {
+          createPostit("Bem-vindo à sua Mesa na Nuvem! ☁️✨\n\nTudo aqui salva sozinho.", 120, 140, 'yellow');
+          createPostit("Dicas:\n• Arraste para mover\n• ↻ para girar\n• ✎ para desenhar\n• Arraste até a 🗑️ para excluir", 420, 220, 'pink');
+        }
+        updateHint();
+      } catch(err) { console.error(err); }
+    }
+
+    // ================= POST-IT =================
     function createPostit(text = "", posX = null, posY = null, colorId = null, width = 240, height = 240, savedRotation = null, canvasData = null) {
       topZIndex++;
       const postit = document.createElement('div');
-      const color = colorId || document.getElementById('colorSelect').value;
+      const color = colorId || getSelectedColor();
       const x = posX !== null ? posX : Math.random() * (window.innerWidth - 300) + 50;
       const y = posY !== null ? posY : Math.random() * (window.innerHeight - 300) + 80;
-      const baseRotation = savedRotation !== null ? savedRotation : (Math.random() * 10) - 5; 
+      const baseRotation = savedRotation !== null ? savedRotation : (Math.random() * 10) - 5;
 
       postit.className = `postit ${color}`;
       postit.dataset.color = color;
@@ -307,7 +464,8 @@
           <div class="postit-tools">
             <button class="tool-btn btn-text active" title="Digitar" onclick="setMode(this, 'text')">T</button>
             <button class="tool-btn btn-draw" title="Desenhar" onclick="setMode(this, 'draw')">✎</button>
-            <button class="tool-btn" title="Limpar" onclick="clearCanvas(this)">↺</button>
+            <button class="tool-btn" title="Trocar cor" onclick="cycleColor(this)">🎨</button>
+            <button class="tool-btn" title="Limpar desenho" onclick="clearCanvas(this)">↺</button>
           </div>
         </div>
         <textarea class="postit-text" placeholder="Escreva algo...">${text}</textarea>
@@ -317,14 +475,14 @@
       `;
 
       board.appendChild(postit);
+      updateHint();
       scheduleAutoSave();
 
       const canvas = postit.querySelector('.postit-canvas');
       const ctx = canvas.getContext('2d');
       canvas.width = width;
       canvas.height = height - 50;
-      
-      const setupBrush = () => { ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.strokeStyle = 'rgba(0,0,0,0.7)'; };
+      const setupBrush = () => { ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = 'rgba(0,0,0,0.72)'; };
       setupBrush();
 
       if(canvasData) {
@@ -334,10 +492,16 @@
       }
 
       let isDrawing = false;
+      const pos = (e) => e.touches ? { x: e.touches[0].offsetX ?? (e.touches[0].clientX - canvas.getBoundingClientRect().left), y: e.touches[0].offsetY ?? (e.touches[0].clientY - canvas.getBoundingClientRect().top) } : { x: e.offsetX, y: e.offsetY };
+
       canvas.addEventListener('mousedown', e => { isDrawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
       canvas.addEventListener('mousemove', e => { if(isDrawing){ ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } });
       canvas.addEventListener('mouseup', () => { if (isDrawing) { isDrawing = false; scheduleAutoSave(); } });
       canvas.addEventListener('mouseleave', () => { if (isDrawing) { isDrawing = false; scheduleAutoSave(); } });
+      canvas.addEventListener('touchstart', e => { isDrawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }, { passive: false });
+      canvas.addEventListener('touchmove', e => { if(isDrawing){ const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); } e.preventDefault(); }, { passive: false });
+      canvas.addEventListener('touchend', () => { if (isDrawing) { isDrawing = false; scheduleAutoSave(); } });
+
       postit.querySelector('.postit-text').addEventListener('input', scheduleAutoSave);
 
       makeDraggable(postit);
@@ -345,9 +509,29 @@
       makeRotatable(postit);
     }
 
-    // ---------------------------------------------
-    // ROTAÇÃO MANUAL (GIRAR)
-    // ---------------------------------------------
+    function cycleColor(btn) {
+      const postit = btn.closest('.postit');
+      const idx = (COLORS.indexOf(postit.dataset.color) + 1) % COLORS.length;
+      COLORS.forEach(c => postit.classList.remove(c));
+      postit.classList.add(COLORS[idx]);
+      postit.dataset.color = COLORS[idx];
+      scheduleAutoSave();
+    }
+
+    function setMode(btn, mode) {
+      const postit = btn.closest('.postit');
+      postit.querySelectorAll('.postit-tools .tool-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      mode === 'draw' ? postit.classList.add('mode-draw') : postit.classList.remove('mode-draw');
+    }
+
+    function clearCanvas(btn) {
+      const canvas = btn.closest('.postit').querySelector('.postit-canvas');
+      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+      scheduleAutoSave();
+    }
+
+    // ================= ROTAÇÃO =================
     function makeRotatable(postit) {
       const handle = postit.querySelector('.rotate-handle');
       handle.addEventListener('mousedown', (e) => {
@@ -358,29 +542,22 @@
 
         const onMouseMove = (ev) => {
           if (!isRotating) return;
-          // Calcula a rotação com base no movimento do mouse na horizontal (esq/dir)
-          const diffX = ev.clientX - startX;
-          const newRot = startRot + (diffX * 0.5); // Multiplicador para deixar suave
-          
+          const newRot = startRot + ((ev.clientX - startX) * 0.5);
           postit.style.setProperty('--rot', `${newRot}deg`);
           postit.dataset.rotation = newRot;
         };
-
         const onMouseUp = () => {
           isRotating = false;
           scheduleAutoSave();
           document.removeEventListener('mousemove', onMouseMove);
           document.removeEventListener('mouseup', onMouseUp);
         };
-
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
       });
     }
 
-    // ---------------------------------------------
-    // REDIMENSIONAMENTO MANUAL
-    // ---------------------------------------------
+    // ================= REDIMENSIONAR =================
     function makeResizable(postit, canvas, ctx, setupBrush) {
       const handle = postit.querySelector('.resize-handle');
       handle.addEventListener('mousedown', (e) => {
@@ -397,7 +574,6 @@
           postit.style.width = `${newW}px`; postit.style.height = `${newH}px`;
           canvas.width = newW; canvas.height = newH - 50;
         };
-
         const onMouseUp = () => {
           isResizing = false;
           scheduleAutoSave();
@@ -407,145 +583,72 @@
           img.onload = () => { ctx.drawImage(img, 0, 0); setupBrush(); };
           img.src = savedImage;
         };
-
         document.addEventListener('mousemove', onMouseMove);
         document.addEventListener('mouseup', onMouseUp);
       });
     }
 
-    // ---------------------------------------------
-    // DRAG AND DROP & LIXEIRA
-    // ---------------------------------------------
+    // ================= ARRASTAR & LIXEIRA (com suporte a toque) =================
     function makeDraggable(element) {
-      let offsetX = 0, offsetY = 0, isDragging = false;
-      
+      let offsetX = 0, offsetY = 0, isDragging = false, moved = false;
+
       element.addEventListener('mousedown', (e) => {
         if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON' || e.target.classList.contains('resize-handle') || e.target.classList.contains('rotate-handle') || element.classList.contains('mode-draw')) {
           topZIndex++; element.style.zIndex = topZIndex; return;
         }
-        isDragging = true; 
+        isDragging = true; moved = false;
         element.classList.add('dragging');
         topZIndex++; element.style.zIndex = topZIndex;
         offsetX = e.clientX - element.offsetLeft; offsetY = e.clientY - element.offsetTop;
       });
-      
+
       document.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
-        element.style.left = `${e.clientX - offsetX}px`; 
+        moved = true;
+        element.style.left = `${e.clientX - offsetX}px`;
         element.style.top = `${e.clientY - offsetY}px`;
 
-        // Verifica se está em cima da Lixeira
         const trashRect = trashCan.getBoundingClientRect();
-        const overTrash = (e.clientX > trashRect.left && e.clientX < trashRect.right &&
-                           e.clientY > trashRect.top && e.clientY < trashRect.bottom);
-        
-        if (overTrash) trashCan.classList.add('hovering');
-        else trashCan.classList.remove('hovering');
+        const overTrash = (e.clientX > trashRect.left - 10 && e.clientX < trashRect.right + 10 &&
+                           e.clientY > trashRect.top - 10 && e.clientY < trashRect.bottom + 10);
+        trashCan.classList.toggle('hovering', overTrash);
       });
-      
+
       document.addEventListener('mouseup', () => {
         if (!isDragging) return;
-        isDragging = false; 
+        isDragging = false;
         element.classList.remove('dragging');
-        scheduleAutoSave();
 
-        // Se soltar em cima da lixeira -> Animação de amassar e excluir
+        // balanço suave ao soltar
+        element.classList.remove('dropped'); void element.offsetWidth; element.classList.add('dropped');
+
         if (trashCan.classList.contains('hovering')) {
           trashCan.classList.remove('hovering');
-          
-          const trashRect = trashCan.getBoundingClientRect();
-          const targetX = trashRect.left + (trashRect.width / 2) - (element.offsetWidth / 2);
-          const targetY = trashRect.top + (trashRect.height / 2) - (element.offsetHeight / 2);
-          
-          element.style.left = `${targetX}px`;
-          element.style.top = `${targetY}px`;
-          element.classList.add('crumpling'); // Ativa o CSS que encolhe e gira o post-it
-          
-          setTimeout(() => { element.remove(); scheduleAutoSave(); }, 400); // Remove o elemento após a animação
-        }
-      });
-    }
 
-    function setMode(btn, mode) {
-      const postit = btn.closest('.postit');
-      postit.querySelectorAll('.postit-tools .tool-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      mode === 'draw' ? postit.classList.add('mode-draw') : postit.classList.remove('mode-draw');
-    }
-
-    function clearCanvas(btn) {
-      const canvas = btn.closest('.postit').querySelector('.postit-canvas');
-      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-      scheduleAutoSave();
-    }
-
-
-    // ---------------------------------------------
-    // SALVAMENTO AUTOMÁTICO (debounce 1,2s)
-    // ---------------------------------------------
-    let saveTimeout = null;
-    function scheduleAutoSave() {
-      if (!currentUser || !db) return; // só salva se estiver logado
-      const status = document.getElementById('sync-status');
-      status.textContent = "💾 Salvando...";
-      status.style.display = "block";
-      clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(async () => {
-        const postitsData = Array.from(document.querySelectorAll('.postit')).map(p => {
-          return {
-            text: p.querySelector('textarea').value, color: p.dataset.color,
-            x: parseInt(p.style.left), y: parseInt(p.style.top),
-            w: parseInt(p.style.width), h: parseInt(p.style.height),
-            rot: parseFloat(p.dataset.rotation), canvas: p.querySelector('canvas').toDataURL()
+          // captura os dados para "Desfazer"
+          const canvas = element.querySelector('canvas');
+          const backup = {
+            text: element.querySelector('textarea').value, color: element.dataset.color,
+            x: parseInt(element.style.left), y: parseInt(element.style.top),
+            w: parseInt(element.style.width), h: parseInt(element.style.height),
+            rot: parseFloat(element.dataset.rotation), canvas: canvas.toDataURL()
           };
-        });
-        try {
-          await db.collection('mesas').doc(currentUser.uid).set({ postits: postitsData, updatedAt: Date.now() });
-          status.textContent = "✅ Salvo automaticamente";
-        } catch (err) {
-          status.textContent = "❌ Erro ao salvar";
+
+          const trashRect = trashCan.getBoundingClientRect();
+          element.style.left = `${trashRect.left + trashRect.width/2 - element.offsetWidth/2}px`;
+          element.style.top = `${trashRect.top + trashRect.height/2 - element.offsetHeight/2}px`;
+          element.classList.add('crumpling');
+
+          setTimeout(() => {
+            element.remove();
+            scheduleAutoSave();
+            showToast("Post-it excluído 🗑️", () => createPostit(backup.text, backup.x, backup.y, backup.color, backup.w, backup.h, backup.rot, backup.canvas));
+          }, 450);
+        } else if (moved) {
+          scheduleAutoSave();
         }
-        setTimeout(() => { status.style.display = "none"; }, 1500);
-      }, 1200);
-    }
-    async function saveToCloud() {
-      if(!currentUser || !db) return alert("Faça login para salvar!");
-      const btn = document.getElementById('btnSync');
-      btn.textContent = "⏳ Salvando...";
-      const postitsData = Array.from(document.querySelectorAll('.postit')).map(p => {
-        return {
-          text: p.querySelector('textarea').value, color: p.dataset.color,
-          x: parseInt(p.style.left), y: parseInt(p.style.top),
-          w: parseInt(p.style.width), h: parseInt(p.style.height),
-          rot: parseFloat(p.dataset.rotation), canvas: p.querySelector('canvas').toDataURL()
-        };
       });
-      try {
-        await db.collection('mesas').doc(currentUser.uid).set({ postits: postitsData });
-        btn.textContent = "✅ Salvo!"; setTimeout(() => btn.textContent = "☁️ Salvar na Nuvem", 2000);
-      } catch (err) { btn.textContent = "❌ Erro"; }
     }
-
-    async function loadFromCloud() {
-      if(!currentUser || !db) return;
-      try {
-        const doc = await db.collection('mesas').doc(currentUser.uid).get();
-        if(doc.exists && doc.data().postits) {
-          board.innerHTML = '';
-          if(doc.data().bg) board.className = doc.data().bg;
-          doc.data().postits.forEach(data => createPostit(data.text, data.x, data.y, data.color, data.w, data.h, data.rot, data.canvas));
-        } else createPostit("Bem-vindo à sua Mesa Cloud! ☁️", 100, 150);
-      } catch(err) { console.error(err); }
-    }
-
-    window.onload = () => {
-      if(firebaseConfig.apiKey === "SUA_API_KEY") {
-        createPostit("Gire pelo ícone ↻\nou\nArraste para a lixeira 🗑️", window.innerWidth/2 - 250, window.innerHeight/2 - 150);
-        document.getElementById('colorSelect').value = 'pink';
-        createPostit("O arraste agora respeita a angulação que você escolheu!", window.innerWidth/2 + 50, window.innerHeight/2 - 50);
-        document.getElementById('colorSelect').value = 'yellow';
-      }
-    };
   </script>
 </body>
 </html>
